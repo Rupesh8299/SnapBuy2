@@ -1,231 +1,233 @@
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Image,
   Pressable,
+  View,
+  Text,
   TouchableOpacity,
-  View as RNView,
 } from "react-native";
-import { Link } from "expo-router";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { memo, useCallback } from "react";
-
-import { ThemedText as Text } from "./ThemedText";
-import { ThemedView as View } from "./ThemedView";
-import { useCart } from "../context/CartContext";
-import { useWishlist } from "../context/WishlistContext";
-
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
-}
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { Product } from "@/services/fakeStoreApi";
 
 interface ProductCardProps {
   product: Product;
 }
 
-export const ProductCard = memo(({ product }: ProductCardProps) => {
-  const { addToCart, getItemQuantity, updateQuantity, removeFromCart } =
+export const ProductCard = ({ product }: ProductCardProps) => {
+  const { addToCart, removeFromCart, getItemQuantity, updateQuantity } =
     useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const cartQuantity = getItemQuantity(product.id);
-  const isWishlisted = isInWishlist(product.id);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [cartQuantity, setCartQuantity] = useState(0);
 
-  const handleAddToCart = useCallback(() => {
-    addToCart({ ...product, quantity: 1 });
-  }, [product, addToCart]);
+  // Check if product is in cart or wishlist on mount
+  useEffect(() => {
+    const quantity = getItemQuantity(product.id);
+    setCartQuantity(quantity);
+    setIsWishlisted(isInWishlist(product.id));
+  }, [product.id, getItemQuantity, isInWishlist]);
 
-  const handleIncrement = useCallback(() => {
-    const newQuantity = cartQuantity + 1;
-    updateQuantity(product.id, newQuantity);
-  }, [product.id, cartQuantity, updateQuantity]);
+  const handleAddToCart = () => {
+    addToCart(product);
+    setCartQuantity(1);
+  };
 
-  const handleDecrement = useCallback(() => {
-    if (cartQuantity <= 1) {
-      removeFromCart(product.id);
-      // Force a re-render after removal
-      requestAnimationFrame(() => {
-        updateQuantity(product.id, 0);
-      });
+  const handleRemoveFromCart = () => {
+    removeFromCart(product.id);
+    setCartQuantity(0);
+  };
+
+  const handleUpdateQuantity = (newQuantity: number) => {
+    if (newQuantity <= 0) {
+      handleRemoveFromCart();
     } else {
-      updateQuantity(product.id, cartQuantity - 1);
+      updateQuantity(product.id, newQuantity);
+      setCartQuantity(newQuantity);
     }
-  }, [product.id, cartQuantity, updateQuantity, removeFromCart]);
+  };
 
-  const handleWishlistToggle = useCallback(() => {
+  const handleWishlistToggle = () => {
     if (isWishlisted) {
       removeFromWishlist(product.id);
+      setIsWishlisted(false);
     } else {
       addToWishlist(product);
+      setIsWishlisted(true);
     }
-  }, [product, isWishlisted, addToWishlist, removeFromWishlist]);
+  };
 
-  const renderCartControls = () => {
-    if (cartQuantity > 0) {
-      return (
-        <RNView key="cart-controls" style={styles.inCartControls}>
-          <TouchableOpacity
-            onPress={handleDecrement}
-            style={styles.quantityButton}
-          >
-            <MaterialCommunityIcons name="minus" size={20} color="#fff" />
-          </TouchableOpacity>
-          <Text style={[styles.quantityText, styles.inCartQuantityText]}>
-            {cartQuantity}
-          </Text>
-          <TouchableOpacity
-            onPress={handleIncrement}
-            style={styles.quantityButton}
-          >
-            <MaterialCommunityIcons name="plus" size={20} color="#fff" />
-          </TouchableOpacity>
-        </RNView>
-      );
-    }
-
-    return (
-      <TouchableOpacity
-        key="add-button"
-        onPress={handleAddToCart}
-        style={styles.addButton}
-      >
-        <Text style={styles.addButtonText}>Add to Cart</Text>
-      </TouchableOpacity>
-    );
+  const handleProductPress = () => {
+    router.push(`/product/${product.id}`);
   };
 
   return (
-    <View style={styles.card}>
-      <TouchableOpacity
-        style={styles.wishlistButton}
-        onPress={handleWishlistToggle}
-      >
-        <MaterialCommunityIcons
-          name={isWishlisted ? "heart" : "heart-outline"}
-          size={24}
-          color={isWishlisted ? "#FF3B30" : "#666"}
-        />
-      </TouchableOpacity>
-
-      <Link href={`/product/${product.id}`} asChild>
-        <Pressable>
-          <Image source={{ uri: product.image }} style={styles.image} />
-          <View style={styles.info}>
-            <Text numberOfLines={2} style={styles.title}>
-              {product.title}
-            </Text>
-            <Text style={styles.price}>₹{product.price.toFixed(2)}</Text>
-          </View>
-        </Pressable>
-      </Link>
-
-      <RNView style={styles.cartControls}>
-        <RNView
-          style={styles.controlsContainer}
-          key={`controls-${cartQuantity}`}
+    <Pressable style={styles.container} onPress={handleProductPress}>
+      <View style={styles.imageContainer}>
+        <TouchableOpacity
+          style={styles.wishlistButton}
+          onPress={handleWishlistToggle}
+          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          {renderCartControls()}
-        </RNView>
-      </RNView>
-    </View>
+          <Ionicons
+            name={isWishlisted ? "heart" : "heart-outline"}
+            size={24}
+            color={isWishlisted ? "#FF3B30" : "#666"}
+          />
+        </TouchableOpacity>
+        <Image
+          source={{ uri: product.image }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={2}>
+          {product.title}
+        </Text>
+        <Text style={styles.price}>₹{product.price.toFixed(2)}</Text>
+      </View>
+
+      {cartQuantity > 0 ? (
+        <View style={styles.cartControls}>
+          <View style={styles.quantityControls}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => handleUpdateQuantity(cartQuantity - 1)}
+            >
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantity}>{cartQuantity}</Text>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => handleUpdateQuantity(cartQuantity + 1)}
+            >
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.addToCartButton}
+          onPress={handleAddToCart}
+        >
+          <Text style={styles.addToCartText}>Add to Cart</Text>
+        </TouchableOpacity>
+      )}
+    </Pressable>
   );
-});
+};
 
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    margin: 5,
+  container: {
     backgroundColor: "#fff",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderRadius: 8,
     overflow: "hidden",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  imageContainer: {
+    aspectRatio: 1,
+    width: "100%",
+    backgroundColor: "#f5f5f5",
+    position: "relative",
   },
   image: {
     width: "100%",
-    height: 150,
+    height: "100%",
     resizeMode: "cover",
-  },
-  info: {
-    padding: 10,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 5,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#2196F3",
-  },
-  cartControls: {
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  controlsContainer: {
-    width: "100%",
-  },
-  inCartControls: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#1a237e",
-    borderRadius: 8,
-    padding: 8,
-  },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quantityText: {
-    marginHorizontal: 16,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  inCartQuantityText: {
-    color: "#fff",
-  },
-  addButton: {
-    backgroundColor: "#1a237e",
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
   },
   wishlistButton: {
     position: "absolute",
     top: 8,
     right: 8,
-    zIndex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 20,
-    padding: 6,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 4,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+  },
+  content: {
+    padding: 8,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 4,
+    color: "#333",
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    marginBottom: 8,
+  },
+  rating: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  ratingText: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 4,
+  },
+  cartControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+    backgroundColor: "#fff",
+  },
+  quantityControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    overflow: "hidden",
+    height: 36,
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  quantityButton: {
+    width: 36,
+    height: 36,
+    backgroundColor: "#e0e0e0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#4169E1",
+  },
+  quantity: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  addToCartButton: {
+    backgroundColor: "#4169E1",
+    height: 36,
+    margin: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  addToCartText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

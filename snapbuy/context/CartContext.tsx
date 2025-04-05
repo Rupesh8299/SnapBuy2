@@ -1,131 +1,119 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { Product } from "@/services/fakeStoreApi";
 
-const GST_RATE = 0.18; // 18% GST
-
-interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
+// Define CartItem interface that extends Product
+export interface CartItem extends Product {
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: CartItem) => void;
+  addToCart: (product: Product) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
-  clearCart: () => void;
   getItemQuantity: (productId: number) => number;
-  total: number;
-  subtotal: number;
-  gstAmount: number;
   getTotalItems: () => number;
+  getSubtotal: () => number;
+  getGST: () => number;
+  getTotal: () => number;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = useCallback((product: CartItem) => {
-    setItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id);
+  const addToCart = useCallback((product: Product) => {
+    setItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.id === product.id);
+
       if (existingItem) {
-        return currentItems.map((item) =>
+        return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + product.quantity }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...currentItems, product];
+
+      return [...prevItems, { ...product, quantity: 1 }];
     });
   }, []);
 
   const removeFromCart = useCallback((productId: number) => {
-    setItems((currentItems) => {
-      // First, ensure the item exists
-      const itemExists = currentItems.some((item) => item.id === productId);
-      if (!itemExists) return currentItems;
-
-      // Remove the item and trigger a state update
-      const newItems = currentItems.filter((item) => item.id !== productId);
-
-      // Use requestAnimationFrame to ensure UI updates properly
-      requestAnimationFrame(() => {
-        // Force a re-render by setting the same state
-        setItems([...newItems]);
-      });
-
-      return newItems;
-    });
+    setItems((prevItems) => prevItems.filter((item) => item.id !== productId));
   }, []);
 
-  const updateQuantity = useCallback((productId: number, quantity: number) => {
-    setItems((currentItems) => {
-      // If quantity is 0 or less, remove the item
+  const updateQuantity = useCallback(
+    (productId: number, quantity: number) => {
       if (quantity <= 0) {
-        return currentItems.filter((item) => item.id !== productId);
+        removeFromCart(productId);
+        return;
       }
 
-      const itemExists = currentItems.some((item) => item.id === productId);
-
-      // If item doesn't exist and quantity > 0, do nothing
-      if (!itemExists) {
-        return currentItems;
-      }
-
-      // Update quantity for existing item
-      return currentItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === productId ? { ...item, quantity } : item
+        )
       );
-    });
-  }, []);
-
-  const clearCart = useCallback(() => {
-    setItems([]);
-  }, []);
+    },
+    [removeFromCart]
+  );
 
   const getItemQuantity = useCallback(
     (productId: number) => {
       const item = items.find((item) => item.id === productId);
-      return item?.quantity || 0;
+      return item ? item.quantity : 0;
     },
     [items]
   );
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  const gstAmount = subtotal * GST_RATE;
-  const total = subtotal + gstAmount;
 
   const getTotalItems = useCallback(() => {
     return items.reduce((total, item) => total + item.quantity, 0);
   }, [items]);
 
-  const value = {
-    items,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getItemQuantity,
-    total,
-    subtotal,
-    gstAmount,
-    getTotalItems,
-  };
+  const getSubtotal = useCallback(() => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [items]);
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-}
+  const getGST = useCallback(() => {
+    return getSubtotal() * 0.18; // 18% GST
+  }, [getSubtotal]);
 
-export function useCart() {
+  const getTotal = useCallback(() => {
+    return getSubtotal() + getGST();
+  }, [getSubtotal, getGST]);
+
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
+
+  return (
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        getItemQuantity,
+        getTotalItems,
+        getSubtotal,
+        getGST,
+        getTotal,
+        clearCart,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error("useCart must be used within a CartProvider");
   }
   return context;
-}
+};

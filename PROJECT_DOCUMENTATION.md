@@ -13,6 +13,7 @@ This is a mobile e-commerce application built using React Native and Expo. The p
 - `StepGuide.md` - Step-by-step guide for development
 - `TASKS.md` - Task tracking documentation
 - `package.json` - Project dependencies and scripts
+- `FAKE_STORE_API_INTEGRATION.md` - Fake Store API integration documentation
 
 ### Icons Directory (`/icons`)
 
@@ -28,6 +29,30 @@ The application now uses Material Community Icons from Expo vector icons package
 - `shopping_cart_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg` - Shopping cart icon
 
 ### Main Application (`/snapbuy`)
+
+#### Directory Structure
+
+```
+snapbuy/
+├── app/
+│   ├── (tabs)/
+│   │   ├── _layout.tsx      # Tab navigation configuration
+│   │   ├── index.tsx        # Home screen
+│   │   ├── explore.tsx      # Search screen
+│   │   ├── cart.tsx         # Cart screen
+│   │   └── wishlist.tsx     # Wishlist screen
+│   ├── product/
+│   │   ├── [id].tsx         # Product detail page
+│   │   └── _layout.tsx      # Product navigation layout
+│   ├── categories/
+│   │   └── [id].tsx         # Category products page
+│   ├── products.tsx         # All products page
+│   └── profile.tsx          # User profile page
+├── components/
+├── context/
+├── services/
+└── constants/
+```
 
 #### Components
 
@@ -56,14 +81,39 @@ The application now uses Material Community Icons from Expo vector icons package
      - Cart quantity indicator
      - State management for cart and wishlist
      - Smooth transitions between states
+   - Updated Features:
+     - Expanded product tiles
+     - Optimized spacing and layout
+     - Larger "Add to Cart" button
+     - Consistent quantity controls
+     - Improved touch targets
+     - Enhanced visual hierarchy
 
-3. `ThemedText.tsx`
+3. `BannerCarousel.tsx`
+
+   - Purpose: Displays promotional banners on home screen
+   - Features:
+     - Auto-sliding banners
+     - Pagination dots
+     - Navigation to products page
+     - Customizable backgrounds
+     - Touch-enabled sliding
+
+4. `CategoryList.tsx`
+
+   - Purpose: Horizontal scrollable category list
+   - Features:
+     - Category icons and labels
+     - Navigation to category pages
+     - Optimized touch targets
+
+5. `ThemedText.tsx`
 
    - Purpose: Text component with theme support
    - Location: `/snapbuy/components/ThemedText.tsx`
    - Usage: Base text component used throughout the app
 
-4. `ThemedView.tsx`
+6. `ThemedView.tsx`
    - Purpose: View component with theme support
    - Location: `/snapbuy/components/ThemedView.tsx`
    - Usage: Base container component used throughout the app
@@ -184,16 +234,30 @@ The application now uses Material Community Icons from Expo vector icons package
      - State-based button transitions
      - Cart integration
      - Wishlist integration
+   - Updated Features:
+     - Swipeable product image gallery
+     - Pagination dots for image navigation
+     - Multiple product views
+     - Related products section
+     - Enhanced product information display
+     - Improved cart and wishlist controls
 
-2. Product Layout (`/snapbuy/app/product/_layout.tsx`)
-   - Purpose: Manages product page navigation and header
+2. Products Page (`/snapbuy/app/products.tsx`)
+
+   - Purpose: Displays all products in a grid
    - Features:
-     - Custom header with back button
-     - Cart icon with item count badge
-     - Dynamic title display
-     - Mobile-optimized spacing
-     - Cart badge with red background and white border
-     - Smooth navigation between screens
+     - Product grid layout
+     - Filtering options
+     - Sorting capabilities
+     - Loading states
+
+3. Category Products Page (`/snapbuy/app/categories/[id].tsx`)
+   - Purpose: Shows products by category
+   - Features:
+     - Category-specific products
+     - Grid layout
+     - Loading states
+     - Error handling
 
 #### Cart Features
 
@@ -276,6 +340,52 @@ The application now uses Material Community Icons from Expo vector icons package
    - State-based button colors
    - Cart badge with count
    - Wishlist status indicators
+
+#### Recent Updates
+
+1. Directory Structure Changes
+
+   - Moved `products.tsx` out of tabs folder
+   - Relocated `categories` directory to app root
+   - Cleaned up navigation structure
+
+2. UI Improvements
+
+   - Enhanced product tiles layout
+   - Added swipeable product images
+   - Improved spacing and typography
+   - Optimized touch targets
+
+3. Feature Enhancements
+   - Banner carousel with navigation
+   - Category list with icons
+   - Product image gallery
+   - Related products section
+
+## Development Guidelines
+
+1. Directory Structure
+
+   - Keep navigation-related files in appropriate folders
+   - Maintain clear separation between tabs and other pages
+   - Follow the established routing pattern
+
+2. Component Development
+
+   - Use existing themed components
+   - Maintain consistent styling
+   - Follow established patterns for cart and wishlist integration
+
+3. API Integration
+
+   - Use the fakeStoreApi service for all product-related requests
+   - Handle loading and error states
+   - Follow type definitions
+
+4. Navigation
+   - Use appropriate navigation methods based on context
+   - Maintain tab navigation structure
+   - Follow URL pattern conventions
 
 ## Development Status
 

@@ -17,13 +17,13 @@ const GST_RATE = 0.18; // 18% GST
 
 export default function CartScreen() {
   const router = useRouter();
-  const { items, removeFromCart, total } = useCart();
+  const { items, removeFromCart, getSubtotal, getGST, getTotal } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
 
   const handleApplyCoupon = () => {
     if (couponCode.toUpperCase() === "SPOOKY15") {
-      setDiscount(total * 0.15); // 15% discount
+      setDiscount(getTotal() * 0.15); // 15% discount
     }
   };
 
@@ -31,9 +31,9 @@ export default function CartScreen() {
     removeFromCart(productId);
   };
 
-  const subtotal = total;
-  const gstAmount = subtotal * GST_RATE;
-  const grandTotal = subtotal + gstAmount - discount;
+  const subtotal = getSubtotal();
+  const gstAmount = getGST();
+  const grandTotal = getTotal() - discount;
   const amountToBePaid = grandTotal;
 
   return (
@@ -51,89 +51,116 @@ export default function CartScreen() {
 
       <ScrollView style={styles.content}>
         {/* Cart Items */}
-        {items.map((item) => (
-          <View key={item.id} style={styles.cartItem}>
-            <Image source={{ uri: item.image }} style={styles.itemImage} />
-            <View style={styles.itemDetails}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemQuantity}>Quantity: {item.quantity}</Text>
-              <Text style={styles.itemPrice}>
-                Unit Price: ₹{item.price.toFixed(2)}
-              </Text>
-              <Text style={styles.subtotal}>
-                Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
-              </Text>
+        {items.length === 0 ? (
+          <View style={styles.emptyCart}>
+            <MaterialCommunityIcons
+              name="cart-outline"
+              size={64}
+              color="#ccc"
+            />
+            <Text style={styles.emptyCartText}>Your cart is empty</Text>
+            <TouchableOpacity
+              style={styles.continueShoppingButton}
+              onPress={() => router.push("/")}
+            >
+              <Text style={styles.continueShoppingText}>Continue Shopping</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          items.map((item) => (
+            <View key={item.id} style={styles.cartItem}>
+              <Image source={{ uri: item.image }} style={styles.itemImage} />
+              <View style={styles.itemDetails}>
+                <Text style={styles.itemTitle}>{item.title}</Text>
+                <Text style={styles.itemQuantity}>
+                  Quantity: {item.quantity}
+                </Text>
+                <Text style={styles.itemPrice}>
+                  Unit Price: ₹{item.price.toFixed(2)}
+                </Text>
+                <Text style={styles.subtotal}>
+                  Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveItem(item.id)}
+                  style={styles.removeButton}
+                >
+                  <MaterialCommunityIcons
+                    name="delete-outline"
+                    size={20}
+                    color="#666"
+                  />
+                  <Text style={styles.removeText}>Remove Item</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
+
+        {/* Discount Coupon */}
+        {items.length > 0 && (
+          <View style={styles.couponSection}>
+            <Text style={styles.sectionTitle}>Discount Coupon</Text>
+            <View style={styles.couponInput}>
+              <TextInput
+                style={styles.input}
+                value={couponCode}
+                onChangeText={setCouponCode}
+                placeholder="SPOOKY15"
+                autoCapitalize="characters"
+              />
               <TouchableOpacity
-                onPress={() => handleRemoveItem(item.id)}
-                style={styles.removeButton}
+                onPress={handleApplyCoupon}
+                style={styles.applyButton}
               >
-                <MaterialCommunityIcons
-                  name="delete-outline"
-                  size={20}
-                  color="#666"
-                />
-                <Text style={styles.removeText}>Remove Item</Text>
+                <Text style={styles.applyButtonText}>APPLY</Text>
               </TouchableOpacity>
             </View>
           </View>
-        ))}
-
-        {/* Discount Coupon */}
-        <View style={styles.couponSection}>
-          <Text style={styles.sectionTitle}>Discount Coupon</Text>
-          <View style={styles.couponInput}>
-            <TextInput
-              style={styles.input}
-              value={couponCode}
-              onChangeText={setCouponCode}
-              placeholder="SPOOKY15"
-              autoCapitalize="characters"
-            />
-            <TouchableOpacity
-              onPress={handleApplyCoupon}
-              style={styles.applyButton}
-            >
-              <Text style={styles.applyButtonText}>APPLY</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        )}
 
         {/* Price Details */}
-        <View style={styles.priceDetails}>
-          <Text style={styles.sectionTitle}>PRICE DETAILS</Text>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Subtotal</Text>
-            <Text style={styles.priceValue}>₹{subtotal.toFixed(2)}</Text>
-          </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>GST (18%)</Text>
-            <Text style={styles.priceValue}>₹{gstAmount.toFixed(2)}</Text>
-          </View>
-          {discount > 0 && (
+        {items.length > 0 && (
+          <View style={styles.priceDetails}>
+            <Text style={styles.sectionTitle}>PRICE DETAILS</Text>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Discount</Text>
-              <Text style={[styles.priceValue, styles.discountText]}>
-                -₹{discount.toFixed(2)}
+              <Text style={styles.priceLabel}>Subtotal</Text>
+              <Text style={styles.priceValue}>₹{subtotal.toFixed(2)}</Text>
+            </View>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceLabel}>GST (18%)</Text>
+              <Text style={styles.priceValue}>₹{gstAmount.toFixed(2)}</Text>
+            </View>
+            {discount > 0 && (
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Discount</Text>
+                <Text style={[styles.priceValue, styles.discountText]}>
+                  -₹{discount.toFixed(2)}
+                </Text>
+              </View>
+            )}
+            <View style={[styles.priceRow, styles.totalRow]}>
+              <Text style={styles.grandTotalLabel}>Grand Total</Text>
+              <Text style={styles.grandTotalValue}>
+                ₹{grandTotal.toFixed(2)}
               </Text>
             </View>
-          )}
-          <View style={[styles.priceRow, styles.totalRow]}>
-            <Text style={styles.grandTotalLabel}>Grand Total</Text>
-            <Text style={styles.grandTotalValue}>₹{grandTotal.toFixed(2)}</Text>
           </View>
-        </View>
+        )}
       </ScrollView>
 
       {/* Bottom Payment Section */}
-      <View style={styles.paymentSection}>
-        <View style={styles.amountRow}>
-          <Text style={styles.amountLabel}>Amt. to be paid</Text>
-          <Text style={styles.amountValue}>₹{amountToBePaid.toFixed(2)}</Text>
+      {items.length > 0 && (
+        <View style={styles.paymentSection}>
+          <View style={styles.amountRow}>
+            <Text style={styles.amountLabel}>Amt. to be paid</Text>
+            <Text style={styles.amountValue}>₹{amountToBePaid.toFixed(2)}</Text>
+          </View>
+          <TouchableOpacity style={styles.payButton}>
+            <Text style={styles.payButtonText}>PAY NOW</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.payButton}>
-          <Text style={styles.payButtonText}>PAY NOW</Text>
-        </TouchableOpacity>
-      </View>
+      )}
     </View>
   );
 }
@@ -159,6 +186,28 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  emptyCart: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  emptyCartText: {
+    fontSize: 18,
+    color: "#666",
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  continueShoppingButton: {
+    backgroundColor: "#4169E1",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  continueShoppingText: {
+    color: "#fff",
+    fontWeight: "600",
   },
   cartItem: {
     flexDirection: "row",
@@ -230,7 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   applyButton: {
-    backgroundColor: "#1a237e",
+    backgroundColor: "#4169E1",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
@@ -295,7 +344,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   payButton: {
-    backgroundColor: "#1a237e",
+    backgroundColor: "#4169E1",
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
