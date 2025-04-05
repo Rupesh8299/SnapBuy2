@@ -22,9 +22,9 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
-          height: 64,
-          paddingTop: 8,
-          paddingBottom: 8,
+          height: 80,
+          paddingTop: 12,
+          paddingBottom: 16,
           position: "absolute",
           bottom: 0,
           left: 0,
@@ -44,16 +44,16 @@ export default function TabLayout() {
           }),
         },
         tabBarItemStyle: {
-          height: 48,
-          paddingVertical: 4,
+          padding: 0,
+          marginHorizontal: 0,
+          height: 52,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "500",
-          marginTop: 4,
-          display: "none",
+          marginTop: 6,
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
       }}
     >
       <Tabs.Screen
@@ -61,20 +61,16 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="home-variant"
-              size={24}
-              color={color}
-            />
+            <MaterialCommunityIcons name="home" size={28} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
+          title: "Search",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="magnify" size={24} color={color} />
+            <MaterialCommunityIcons name="magnify" size={28} color={color} />
           ),
         }}
       />
@@ -83,11 +79,7 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="cart-outline"
-              size={24}
-              color={color}
-            />
+            <MaterialCommunityIcons name="cart" size={28} color={color} />
           ),
         }}
       />
@@ -96,11 +88,7 @@ export default function TabLayout() {
         options={{
           title: "Wishlist",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="heart-outline"
-              size={24}
-              color={color}
-            />
+            <MaterialCommunityIcons name="heart" size={28} color={color} />
           ),
         }}
       />

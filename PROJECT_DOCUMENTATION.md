@@ -16,7 +16,7 @@ This is a mobile e-commerce application built using React Native and Expo. The p
 
 ### Icons Directory (`/icons`)
 
-Contains SVG icons used throughout the application:
+The application now uses Material Community Icons from Expo vector icons package for the navigation bar. Legacy SVG icons are still available for other parts of the application:
 
 - `backspace_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg` - Backspace icon
 - `delete_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg` - Delete icon
@@ -33,15 +33,29 @@ Contains SVG icons used throughout the application:
 
 1. `HapticTab.tsx`
 
-   - Purpose: Provides haptic feedback for tab interactions
+   - Purpose: Provides haptic feedback and animations for tab interactions
    - Location: `/snapbuy/components/HapticTab.tsx`
    - Usage: Used in tab navigation for enhanced user experience
+   - Features:
+     - Scale animation on press (0.95 scale)
+     - Vertical translation on selection (-3 units)
+     - Opacity transitions (1.0 selected, 0.6 unselected)
+     - Haptic feedback on press
+     - Smooth animations with configurable speeds and bounce effects
 
 2. `ProductCard.tsx`
 
    - Purpose: Displays product information in a card format
    - Location: `/snapbuy/components/ProductCard.tsx`
    - Usage: Used in product listings and search results
+   - Features:
+     - Product image with proper aspect ratio
+     - Title and price display
+     - Add to Cart button with quantity controls
+     - Wishlist heart icon in top right corner
+     - Cart quantity indicator
+     - State management for cart and wishlist
+     - Smooth transitions between states
 
 3. `ThemedText.tsx`
 
@@ -61,6 +75,12 @@ Contains SVG icons used throughout the application:
    - Purpose: Main layout configuration
    - Location: `/snapbuy/app/_layout.tsx`
    - Usage: Defines the app's navigation structure
+   - Features:
+     - Bottom tab navigation with 4 main routes (Home, Search, Cart, Wishlist)
+     - Custom styled tab bar (80px height, rounded corners)
+     - Material Community Icons integration (28px size)
+     - Consistent spacing and typography
+     - Shadow effects for visual depth
 
 2. `+not-found.tsx`
 
@@ -112,15 +132,164 @@ Contains SVG icons used throughout the application:
   - Location: `/snapbuy/constants/Colors.ts`
   - Usage: Central color management
 
+#### UI Components and Screens
+
+1. Search Bar
+   - Location: `/snapbuy/app/(tabs)/index.tsx`
+   - Features:
+     - Clean, minimal design
+     - Full-width layout
+     - Light gray background (#F5F5F5)
+     - Left-aligned search icon
+     - Placeholder text: "Search your item"
+     - Rounded corners (8px radius)
+     - Proper padding and spacing
+     - Integrated with Ionicons for search icon
+
+#### Context Management
+
+1. `CartContext.tsx`
+
+   - Purpose: Manages shopping cart state
+   - Location: `/snapbuy/context/CartContext.tsx`
+   - Features:
+     - Add/remove items from cart
+     - Update item quantities
+     - Calculate total items
+     - Get individual item quantities
+     - Calculate subtotal and GST
+     - Clear cart functionality
+
+2. `WishlistContext.tsx`
+   - Purpose: Manages wishlist functionality
+   - Location: `/snapbuy/context/WishlistContext.tsx`
+   - Features:
+     - Add/remove items from wishlist
+     - Check if item is in wishlist
+     - Toggle wishlist status
+     - Clear wishlist functionality
+
+#### Product Pages
+
+1. Product Detail Page (`/snapbuy/app/product/[id].tsx`)
+
+   - Purpose: Displays detailed product information
+   - Features:
+     - Full-width product image
+     - Product title and description
+     - Price display
+     - Bottom action buttons:
+       - Wishlist/Wishlisted toggle button
+       - Add to Bag/Go to Bag button
+     - State-based button transitions
+     - Cart integration
+     - Wishlist integration
+
+2. Product Layout (`/snapbuy/app/product/_layout.tsx`)
+   - Purpose: Manages product page navigation and header
+   - Features:
+     - Custom header with back button
+     - Cart icon with item count badge
+     - Dynamic title display
+     - Mobile-optimized spacing
+     - Cart badge with red background and white border
+     - Smooth navigation between screens
+
+#### Cart Features
+
+1. Cart Functionality
+
+   - Add to cart with quantity selection
+   - Update quantities from product cards
+   - Remove items when quantity reaches zero
+   - Cart badge showing total items
+   - Cart state persistence across app
+   - GST calculations (18%)
+
+2. Cart UI Elements
+   - Cart icon in headers
+   - Item count badge
+   - Quantity controls
+   - Add to Cart/Go to Cart button states
+   - Mobile-optimized touch targets
+
+#### Wishlist Features
+
+1. Wishlist Functionality
+
+   - Add/remove items from wishlist
+   - Wishlist state management
+   - Toggle wishlist status
+   - Visual feedback for wishlisted items
+
+2. Wishlist UI Elements
+   - Heart icon on product cards
+   - Wishlist/Wishlisted button states
+   - Color transitions for wishlist status
+
+## Recent Updates
+
+### New Features Added
+
+1. Cart System
+
+   - Complete cart management system
+   - Quantity controls on product cards
+   - Cart badge with total items
+   - GST calculation integration
+
+2. Wishlist System
+
+   - Wishlist toggle functionality
+   - Visual indicators for wishlisted items
+   - State management for wishlist
+
+3. Product Detail Page
+   - New layout with bottom action buttons
+   - Integrated cart and wishlist functionality
+   - Mobile-optimized header design
+   - Dynamic button states
+
+### Modified Components
+
+1. ProductCard
+
+   - Added wishlist heart icon
+   - Integrated cart controls
+   - Updated styling for mobile
+
+2. Navigation
+   - Added custom header for product pages
+   - Implemented cart badge system
+   - Optimized mobile spacing
+
+### UI/UX Improvements
+
+1. Mobile Optimization
+
+   - Adjusted header padding and spacing
+   - Optimized touch targets
+   - Improved badge visibility
+   - Enhanced button feedback
+
+2. Visual Feedback
+   - State-based button colors
+   - Cart badge with count
+   - Wishlist status indicators
+
 ## Development Status
 
-The project is currently in active development with the following features implemented:
+The project has implemented the following features:
 
 - Basic navigation structure
 - Theme support with light/dark mode
 - Authentication flow
 - Product listing and details
-- User profile management
+- Cart management system
+- Wishlist functionality
+- Mobile-optimized UI
+- Custom navigation
+- State management with contexts
 
 ## Important Notes for AI Editors
 

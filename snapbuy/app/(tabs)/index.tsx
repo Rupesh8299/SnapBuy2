@@ -10,6 +10,7 @@ import {
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ProductCard } from "@/components/ProductCard";
+import { Ionicons } from "@expo/vector-icons";
 
 const DUMMY_PRODUCTS = [
   {
@@ -66,14 +67,19 @@ export default function HomeScreen() {
 
       {/* Search Bar */}
       <ThemedView style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search items..."
-          placeholderTextColor="#666"
-        />
-        <Pressable style={styles.searchButton}>
-          <ThemedText>🔍</ThemedText>
-        </Pressable>
+        <ThemedView style={styles.searchInputContainer}>
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color="#666"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search your item"
+            placeholderTextColor="#666"
+          />
+        </ThemedView>
       </ThemedView>
 
       {/* Banner Section */}
@@ -175,27 +181,25 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginBottom: 8,
   },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 20,
-    paddingHorizontal: 16,
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: {
     marginRight: 8,
   },
-  searchButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#4169E1",
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
   },
   banner: {
     height: 180,
