@@ -18,6 +18,20 @@ api.interceptors.response.use(
   }
 );
 
+// Convert USD to INR
+const convertToINR = (priceInUSD: number): number => {
+  const USD_TO_INR_RATE = 83; // Approximate conversion rate
+  return Math.round(priceInUSD * USD_TO_INR_RATE);
+};
+
+// Convert product prices to INR
+const convertProductPrices = (product: any): Product => {
+  return {
+    ...product,
+    price: convertToINR(product.price)
+  };
+};
+
 // Product interface
 export interface Product {
   id: number;
@@ -38,7 +52,7 @@ export const fakeStoreApi = {
   getAllProducts: async (): Promise<Product[]> => {
     try {
       const response = await api.get('/products');
-      return response.data;
+      return response.data.map(convertProductPrices);
     } catch (error) {
       console.error('Error fetching products:', error);
       throw error;
@@ -49,7 +63,7 @@ export const fakeStoreApi = {
   getProductById: async (id: number): Promise<Product> => {
     try {
       const response = await api.get(`/products/${id}`);
-      return response.data;
+      return convertProductPrices(response.data);
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error);
       throw error;
@@ -71,7 +85,7 @@ export const fakeStoreApi = {
   getProductsByCategory: async (category: string): Promise<Product[]> => {
     try {
       const response = await api.get(`/products/category/${category}`);
-      return response.data;
+      return response.data.map(convertProductPrices);
     } catch (error) {
       console.error(`Error fetching products for category ${category}:`, error);
       throw error;
@@ -79,4 +93,4 @@ export const fakeStoreApi = {
   },
 };
 
-export default fakeStoreApi; 
+export default fakeStoreApi;

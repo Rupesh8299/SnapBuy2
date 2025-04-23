@@ -47,6 +47,7 @@ snapbuy/
 │   ├── categories/
 │   │   └── [id].tsx         # Category products page
 │   ├── products.tsx         # All products page
+│   ├── delivery-location.tsx # Delivery location screen
 │   └── profile.tsx          # User profile page
 ├── components/
 ├── context/
@@ -295,20 +296,28 @@ snapbuy/
 
 ### New Features Added
 
-1. Cart System
+1. Address Management System
+
+   - Comprehensive delivery address management
+   - Multiple address storage with labels (Home/Office/Other)
+   - Address selection and persistence
+   - Visual indicators for selected address
+   - Proper form validation and error handling
+
+2. Cart System
 
    - Complete cart management system
    - Quantity controls on product cards
    - Cart badge with total items
    - GST calculation integration
 
-2. Wishlist System
+3. Wishlist System
 
    - Wishlist toggle functionality
    - Visual indicators for wishlisted items
    - State management for wishlist
 
-3. Product Detail Page
+4. Product Detail Page
    - New layout with bottom action buttons
    - Integrated cart and wishlist functionality
    - Mobile-optimized header design
@@ -316,27 +325,62 @@ snapbuy/
 
 ### Modified Components
 
-1. ProductCard
+1. Delivery Location Screen (`/snapbuy/app/delivery-location.tsx`)
+
+   - Purpose: Manages delivery addresses
+   - Features:
+     - Add/edit/remove delivery addresses
+     - Address type selection (Home/Office/Other)
+     - Required field validation
+     - Visual feedback for selected address
+     - Proper error handling
+     - Address persistence using AsyncStorage
+     - Formatted address display
+   - Components:
+     - Address form with validation
+     - Address type selector
+     - Address cards with selection state
+     - Delete functionality
+     - Cancel/Save actions
+
+2. Home Screen Address Bar
+
+   - Enhanced address display showing recipient name
+   - Formatted full address with proper truncation
+   - Visual indicators for clickable state
+   - Integration with delivery location screen
+   - Automatic updates on address selection
+
+3. ProductCard
 
    - Added wishlist heart icon
    - Integrated cart controls
    - Updated styling for mobile
 
-2. Navigation
+4. Navigation
    - Added custom header for product pages
    - Implemented cart badge system
    - Optimized mobile spacing
 
 ### UI/UX Improvements
 
-1. Mobile Optimization
+1. Address Management
+
+   - Clear visual hierarchy for addresses
+   - Easy-to-use address type selection
+   - Proper form validation feedback
+   - Visual indicators for selected address
+   - Smooth transitions between states
+   - Optimized mobile layout
+
+2. Mobile Optimization
 
    - Adjusted header padding and spacing
    - Optimized touch targets
    - Improved badge visibility
    - Enhanced button feedback
 
-2. Visual Feedback
+3. Visual Feedback
    - State-based button colors
    - Cart badge with count
    - Wishlist status indicators
@@ -387,6 +431,14 @@ snapbuy/
    - Maintain tab navigation structure
    - Follow URL pattern conventions
 
+### Data Storage
+
+1. AsyncStorage Keys
+   - `@snapbuy_delivery_addresses`: Stores array of all saved addresses
+   - `@snapbuy_delivery_address`: Stores ID of currently selected address
+   - Use proper error handling when accessing storage
+   - Maintain data consistency between storage and state
+
 ## Development Status
 
 The project has implemented the following features:
@@ -409,16 +461,22 @@ The project has implemented the following features:
 4. Preserve the current file structure
 5. Use the existing hooks and contexts for new features
 6. Respect the separation of concerns in the current architecture
+7. Follow the established pattern for AsyncStorage keys and data persistence
+8. Maintain proper type definitions for stored data
 
 ## Next Steps
 
 Future development should focus on:
 
-1. Enhancing the product search functionality
-2. Implementing the shopping cart feature
-3. Adding user reviews and ratings
-4. Improving the checkout process
-5. Implementing push notifications
+1. Address validation and geocoding
+2. Multiple shipping address support for orders
+3. Default billing address functionality
+4. Address import from user profile
+5. Enhancing the product search functionality
+6. Implementing the shopping cart feature
+7. Adding user reviews and ratings
+8. Improving the checkout process
+9. Implementing push notifications
 
 ## Testing
 
